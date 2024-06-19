@@ -1,0 +1,212 @@
+{% extends "layout.html" %}
+
+{% block body%}
+<!-- Navbar -->
+
+<div class="formAction none"></div>
+
+<nav>
+    <div class="navBtn"><a href="/scores">scores</a></div>
+    <div class="navBtn" onclick="restartGame()">restart</div>
+</nav>
+
+<main>
+    <!-- Score -->
+    <section class="scoreSection">
+        <div>
+            <!-- <h3>Name: Chimere</h3> -->
+            <h3 id="score">Score: 0</h3>
+        </div>
+        <div class="message"></div>
+        <div>
+            <h3 class="clock">Timer: 02:00</h3>
+        </div>
+    </section>
+    <!-- Cards -->
+    <section class="cardSection"></section>
+</main>
+
+<script>
+
+    let scoreCount = 0
+    let count = 0
+    let compare = []
+
+    function getRandomItems(item) {
+        item.sort(() => Math.random() - 0.5);
+
+        const indices = [];
+        while (indices.length < 3) {
+            let randomIndex = Math.floor(Math.random() * item.length);
+            if (!indices.includes(randomIndex)) {
+                indices.push(randomIndex);
+            }
+        }
+
+        let index1 = indices[0];
+        let index2 = indices[1];
+        let index3 = indices[2];
+
+        if (Math.random() < 0.5) {
+            index3 = index1;
+        } else {
+            index3 = index2;
+        }
+
+        const result = [item[index1], item[index2], item[index3]]
+
+        return result
+
+    }
+
+    const displayItems = () => {
+        const items = ["1", "2", "3", "4", "5", "6", "7", "8"];
+        const cardSection = document.querySelector(".cardSection")
+
+        cardSection.innerHTML = ""
+
+        const result = getRandomItems(items)
+
+        result.forEach((item) => {
+            cardSection.innerHTML += `
+                <div onClick="handleClick(event)" class="cards">
+                    <img class="cardImage" data-id=${item} src="../static/dog (${item}).jpg" alt="dog image">
+                 </div>`;
+        });
+
+        // Almost redundant but to be on the safe side
+        // document.querySelectorAll('.cards').forEach(card => {
+        //     card.addEventListener('click', handleClick);
+        // })
+    }
+
+    const handleClick = (e) => {
+        let card = e.currentTarget
+        let cardImage = card.querySelector(".cardImage")
+
+        if (cardImage.style.display === "block") return;
+
+        compare.push(cardImage)
+        count++
+
+        if (card.style.transform == "rotateY(180deg)") {
+            card.style.transform = "rotateY(0deg)"
+            card.style.transitionDuration = "1s"
+            setTimeout(() => { cardImage.style.display = "none" }, 50)
+
+        }
+        else {
+            card.style.transform = "rotateY(180deg)"
+            card.style.transitionDuration = "1s"
+            setTimeout(() => { cardImage.style.display = "block" }, 500)
+        }
+
+        if (count == 2) {
+            compareCards(compare)
+        }
+    }
+
+    const compareCards = (array) => {
+        const message = document.querySelector(".message")
+
+
+        const alert = (text, style) => {
+            message.style.color = style
+            message.innerHTML = text
+        }
+
+        const first = array[0].getAttribute('data-id')
+        const second = array[1].getAttribute('data-id')
+
+        // console.log(first, second)
+
+        if (first == second) {
+            setTimeout(() => {
+                alert("Correct", "green")
+            }, 1000)
+            setTimeout(() => {
+                alert("", "")
+            }, 2000)
+            scoreCount++
+            let score = document.getElementById("score")
+            score.innerHTML = `Score: ${scoreCount}/20`
+
+            if (scoreCount == 20) [
+                submitForm()
+            ]
+
+        } else {
+            setTimeout(() => {
+                alert("Wrong", "red")
+            }, 1000)
+            setTimeout(() => {
+                alert("", "")
+            }, 2000)
+        }
+
+        setTimeout(() => {
+            alert("", "");
+            displayItems();
+            compare = [];
+            count = 0;
+        }, 2000);
+    }
+
+
+    const submitForm = () => {
+        const formAction = document.querySelector(".formAction")
+        formAction.classList.remove("none")
+
+        formAction.innerHTML = `
+            <form action="/" method="post">
+                <div>Game Over</div>
+                <div>
+                    <input class="inputField" type="text" autocomplete="off" autofocus placeholder="name" name="name">
+                    <input class="scoreBox none" type="text" autocomplete="off" name="score" value="${scoreCount}">
+                </div>
+                <button type="submit">submit</button>
+            </form>
+        `
+    }
+
+
+    let duration = 120
+    let timer
+    const clock = document.querySelector(".clock")
+
+    function startTimer(duration, display) {
+        let time = duration, minutes, seconds;
+
+        timer = setInterval(() => {
+            minutes = parseInt(time / 60, 10);
+            seconds = parseInt(time % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes
+            seconds = seconds < 10 ? "0" + seconds : seconds
+
+            clock.innerHTML = `Timer: ${minutes}:${seconds}`
+
+            if (--time < 0) {
+                clearInterval(timer);
+                const message = document.querySelector(".message")
+                message.innerHTML = "Time's up!"
+                submitForm();
+            }
+        }, 1000);
+    }
+
+    const restartGame = () => {
+        scoreCount = 0
+        count = 0
+        compare = []
+        displayItems()
+        clearInterval(timer)
+        startTimer(duration, clock)
+    }
+
+    displayItems()
+    startTimer(duration, clock)
+
+
+</script>
+{% endblock %}
