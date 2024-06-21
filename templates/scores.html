@@ -2,11 +2,14 @@
 
 {% block body%}
 
-<main>
-    <div class="back">
-        <a href="/">Back</a>
+<main class="scoreMain">
+    <div class="scoreNav">
+        <a href="/">
+            <div class="navBtn">
+                Back
+            </div>
+        </a>
     </div>
-
     <div class="scoreHeader">
         <h2>Scores</h2>
     </div>
@@ -20,11 +23,15 @@
             </tr>
         </thead>
         <tbody>
+            {% for scores in scoreSheet %}
             <tr>
-                <td>1</td>
-                <td>Chimere</td>
-                <td>20/20</td>
+                <td>{{scores.id}}</td>
+                <td>
+                    {{scores.name}}
+                </td>
+                <td>{{scores.score}}/20</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </main>
