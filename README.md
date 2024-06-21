@@ -1,6 +1,9 @@
 # Card Game
 This is a card game built for the purple guild phase 1 project.
 
+---
+### Live site: https://card-game-bkqz.onrender.com/
+---
 
 #### This project was built using flask, a pain in the ass framework especially for me.
 
